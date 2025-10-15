@@ -1,0 +1,15 @@
+# FastAPI WebSocket Server Dependencies
+# Python 3.8+
+
+# FastAPI framework
+fastapi==0.109.0
+
+# ASGI server
+uvicorn[standard]==0.27.0
+
+# WebSocket support (included with FastAPI)
+websockets==12.0
+
+# Additional dependencies for production
+python-multipart==0.0.6
+
