@@ -142,7 +142,7 @@ class GracefulShutdownManager:
     - Logs progress
     """
     
-    def __init__(self, connection_manager: ConnectionManager, timeout_seconds: int = 20):
+    def __init__(self, connection_manager: ConnectionManager, timeout_seconds: int = 1800):
         """
         Args:
             connection_manager: Connection Manager
@@ -211,7 +211,7 @@ class GracefulShutdownManager:
         )
         
         start_time = time.time()
-        log_interval = 5
+        log_interval = 60
         last_log_time = time.time()
         
         while True:
@@ -293,8 +293,6 @@ async def lifespan(app: FastAPI):
     
     broadcast_task = asyncio.create_task(periodic_broadcast_task())
     
-    # ВАЖЛИВО: Запускаємо wait_for_shutdown як окрему задачу в startup phase
-    # Інакше вона не викличеться, бо ми перехопили SIGTERM/SIGINT
     shutdown_task = asyncio.create_task(shutdown_manager.wait_for_shutdown())
     
     logger.info("FastAPI application started successfully")
@@ -303,9 +301,7 @@ async def lifespan(app: FastAPI):
     
     logger.info("FastAPI application is closing down...")
     
-    # Якщо shutdown task ще виконується - чекаємо
     if not shutdown_task.done():
-        # Тригеруємо shutdown якщо ще не тригернуто
         if not shutdown_manager.shutdown_event.is_set():
             shutdown_manager.shutdown_event.set()
         
